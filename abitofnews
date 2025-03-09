@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""A Bit Of News"""
+import glob
+import shelve
+from pathlib import Path
+import feedparser
+import dominate
+from dominate.tags import *
+
+# open shelf
+db = shelve.open("feeds")
+
+# header
+doc = dominate.document(title="A Bit Of News")
+with doc.head:
+    link(rel="stylesheet", href="style.css")
+
+# body
+doc += h1("A Bit Of News")
+
+for file in sorted(glob.glob("*.txt")):
+    doc += h2(Path(file).stem)
+    with open(file, encoding="utf-8") as url_file:
+        for line in url_file:
+            if db.get(line) is not None:
+                if " " in db.get(line):
+                    d = feedparser.parse(line, modified=db[line])
+                else:
+                    d = feedparser.parse(line, etag=db[line])
+                # more here
+                if d.status == 304:
+                    print("nothing new: " + line)
+                    pass
+                else:
+                    doc += h3(d.feed.title)
+                    doc += p(a(d.entries[0].title, href=d.entries[0].link))
+                    if hasattr(d, 'etag'):
+                        db[line] = d.etag
+                    elif hasattr(d, 'modified'):
+                        db[line] = d.modified
+            else:
+                d = feedparser.parse(line)
+                doc += h3(d.feed.title)
+                doc += p(a(d.entries[0].title, href=d.entries[0].link))
+                if hasattr(d, 'etag'):
+                    db[line] = d.etag
+                elif hasattr(d, 'modified'):
+                    db[line] = d.modified
+
+print(doc)
+
+with open("abitofnews.html", "w", encoding="utf-8") as file:
+    file.write(str(doc))
+
+# close shelf
+db.close()
