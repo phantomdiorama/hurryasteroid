@@ -1,56 +1,87 @@
 #!/usr/bin/env python3
+
 """A Bit Of News"""
+
 import glob
-import shelve
 from pathlib import Path
 import feedparser
 import dominate
-from dominate.tags import *
+from dominate.tags import a, p, h1, link
 
-# open shelf
-db = shelve.open("feeds")
-
-# header
+# document header
 doc = dominate.document(title="A Bit Of News")
 with doc.head:
     link(rel="stylesheet", href="style.css")
 
-# body
+# document body
 doc += h1("A Bit Of News")
 
-for file in sorted(glob.glob("*.txt")):
-    doc += h2(Path(file).stem)
-    with open(file, encoding="utf-8") as url_file:
-        for line in url_file:
-            if db.get(line) is not None:
-                if " " in db.get(line):
-                    d = feedparser.parse(line, modified=db[line])
-                else:
-                    d = feedparser.parse(line, etag=db[line])
-                # more here
-                if d.status == 304:
-                    print("nothing new: " + line)
-                    pass
-                else:
-                    doc += h3(d.feed.title)
-                    doc += p(a(d.entries[0].title, href=d.entries[0].link))
-                    if hasattr(d, 'etag'):
-                        db[line] = d.etag
-                    elif hasattr(d, 'modified'):
-                        db[line] = d.modified
+for channel in glob.glob("*.rss"):
+    with open(channel, encoding="utf-8") as file:
+        nameFile = file.name
+        fTag = file.name + ".etag"
+        print("======\n" + file.name)
+        fMod = file.name + ".mod"
+        fLink = file.name + ".link"
+        rss = file.read()
+        if not any([Path(fTag).exists(),Path(fMod).exists(),Path(fLink).exists()]):
+            d = feedparser.parse(rss.strip())
+            doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+            if hasattr(d, "etag"):
+                print("writing tag...")
+                with open(fTag, "w", encoding="utf-8") as data:
+                    data.write(d.etag)
+            elif hasattr(d, "modified"):
+                with open(fMod, "w", encoding="utf-8") as data:
+                    data.write(d.modified)
             else:
-                d = feedparser.parse(line)
-                doc += h3(d.feed.title)
-                doc += p(a(d.entries[0].title, href=d.entries[0].link))
-                if hasattr(d, 'etag'):
-                    db[line] = d.etag
-                elif hasattr(d, 'modified'):
-                    db[line] = d.modified
-
+                with open(fLink, "w", encoding="utf-8") as data:
+                    data.write(d.entries[0].link)
+        else:
+            print("has data file")
+            if Path(fTag).exists():
+                print("data: etag")
+                with open(fTag, "r", encoding="utf-8") as data:
+                    check = data.read()
+                d = feedparser.parse(rss.strip(), etag=check)
+                if d.status == 304:
+                    print("nothing to do")
+                elif d.etag == check:
+                    print("really nothing to do")
+                else:
+                    print("updating...")
+                    doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+                    with open(fTag, "w", encoding="utf-8") as data:
+                        data.write(d.etag)
+            elif Path(fMod).exists():
+                print("data: modified")
+                with open(fMod, "r", encoding="utf-8") as data:
+                    check = data.read()
+                d = feedparser.parse(rss.strip(), modified=check)
+                if d.status == 304:
+                    print("nothing to do")
+                elif d.modified == check:
+                    print("really nothing to do")
+                else:
+                    print("updating...")
+                    doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+                    with open(fMod, "w", encoding="utf-8") as data:
+                        data.write(d.modified)
+            elif Path(fLink).exists():
+                print("data: link")
+                with open(fLink, "r", encoding="utf-8") as data:
+                    check = data.read()
+                d = feedparser.parse(rss.strip())
+                if d.entries[0].link == check:
+                    print("nothing to do")
+                else:
+                    print("updating...")
+                    doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+                    with open(fLink, "w", encoding="utf-8") as data:
+                        data.write(d.entries[0].link)
+# debug output
 print(doc)
 
-with open("abitofnews.html", "w", encoding="utf-8") as file:
-    file.write(str(doc))
-
-# close shelf
-db.close()
+# create file
+# with open("abitofnews.html", "w", encoding="utf-8") as file:
+    # file.write(str(doc))
