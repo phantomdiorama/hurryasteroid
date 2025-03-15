@@ -16,15 +16,14 @@ with doc.head:
 # document body
 doc += h1("A Bit Of News")
 
-for channel in glob.glob("*.rss"):
+for channel in sorted(glob.glob("*.rss")):
     with open(channel, encoding="utf-8") as file:
-        nameFile = file.name
         fTag = file.name + ".etag"
-        print("======\n" + file.name)
         fMod = file.name + ".mod"
         fLink = file.name + ".link"
         rss = file.read()
-        if not any([Path(fTag).exists(),Path(fMod).exists(),Path(fLink).exists()]):
+        print("======\n" + file.name)
+        if not any([Path(fTag).exists(), Path(fMod).exists(), Path(fLink).exists()]):
             d = feedparser.parse(rss.strip())
             doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
             if hasattr(d, "etag"):
@@ -34,9 +33,9 @@ for channel in glob.glob("*.rss"):
             elif hasattr(d, "modified"):
                 with open(fMod, "w", encoding="utf-8") as data:
                     data.write(d.modified)
-            else:
-                with open(fLink, "w", encoding="utf-8") as data:
-                    data.write(d.entries[0].link)
+            # else:
+            with open(fLink, "w", encoding="utf-8") as data:
+                data.write(d.entries[0].link)
         else:
             print("has data file")
             if Path(fTag).exists():
@@ -45,28 +44,38 @@ for channel in glob.glob("*.rss"):
                     check = data.read()
                 d = feedparser.parse(rss.strip(), etag=check)
                 if d.status == 304:
-                    print("nothing to do")
+                    print("error 304")
                 elif d.etag == check:
-                    print("really nothing to do")
+                    print("tags match, doing nothing")
                 else:
-                    print("updating...")
-                    doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
-                    with open(fTag, "w", encoding="utf-8") as data:
-                        data.write(d.etag)
+                    with open(fLink, "r", encoding="utf-8") as data:
+                        check = data.read()
+                    if check == d.entries[0].link:
+                        print("entries match, doing nothing")
+                    else:
+                        print("updating...")
+                        doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+                        with open(fTag, "w", encoding="utf-8") as data:
+                            data.write(d.etag)
             elif Path(fMod).exists():
                 print("data: modified")
                 with open(fMod, "r", encoding="utf-8") as data:
                     check = data.read()
                 d = feedparser.parse(rss.strip(), modified=check)
                 if d.status == 304:
-                    print("nothing to do")
+                    print("error 304")
                 elif d.modified == check:
-                    print("really nothing to do")
+                    print("tags match, doing nothing")
                 else:
-                    print("updating...")
-                    doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
-                    with open(fMod, "w", encoding="utf-8") as data:
-                        data.write(d.modified)
+                    with open(fLink, "r", encoding="utf-8") as data:
+                        check = data.read()
+                    if check == d.entries[0].link:
+                        print("entries match, doing nothing")
+                    else:
+                        print("updating...")
+                        doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+                        with open(fMod, "w", encoding="utf-8") as data:
+                            data.write(d.modified)
             elif Path(fLink).exists():
                 print("data: link")
                 with open(fLink, "r", encoding="utf-8") as data:
@@ -83,5 +92,5 @@ for channel in glob.glob("*.rss"):
 print(doc)
 
 # create file
-# with open("abitofnews.html", "w", encoding="utf-8") as file:
-    # file.write(str(doc))
+with open("abitofnews.html", "w", encoding="utf-8") as outputFile:
+    outputFile.write(str(doc))
