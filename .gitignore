@@ -1,3 +1,7 @@
-feeds.db
+data/
 *.html
 *.txt
+*.rss
+*.etag
+*.mod
+*.link
