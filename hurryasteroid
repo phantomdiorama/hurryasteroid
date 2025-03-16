@@ -6,7 +6,7 @@ import glob
 from pathlib import Path
 import feedparser
 import dominate
-from dominate.tags import a, p, h1, h3, link
+from dominate.tags import a, p, h1, h3, link, img
 from dominate.util import raw
 
 # document header
@@ -95,6 +95,7 @@ for channel in sorted(glob.glob("*.rss")):
                     with open(fLink, "w", encoding="utf-8") as data:
                         data.write(d.entries[0].link)
 # debug output
+doc += img("asteroid", src="pic.png")
 print(doc)
 
 # create file
