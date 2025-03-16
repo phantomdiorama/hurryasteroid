@@ -9,6 +9,4 @@ shows it only *once*.
 
 ## Thanks
 
-- [Lorem RSS](https://lorem-rss.herokuapp.com/)
-- [W3C Validator](https://validator.w3.org/)
-- [NetNewsWire](https://netnewswire.com/)
+Asteroid image by Good Stuff No Nonsense [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 
