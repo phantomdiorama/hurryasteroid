@@ -6,26 +6,29 @@ import glob
 from pathlib import Path
 import feedparser
 import dominate
-from dominate.tags import a, p, h1, link
+from dominate.tags import a, p, h1, h3, link
+from dominate.util import raw
 
 # document header
 doc = dominate.document(title="A Bit Of News")
 with doc.head:
     link(rel="stylesheet", href="style.css")
+    raw('<meta name="viewport" content="width=device-width, initial-scale=1.0" />')
 
 # document body
 doc += h1("A Bit Of News")
 
 for channel in sorted(glob.glob("*.rss")):
     with open(channel, encoding="utf-8") as file:
-        fTag = file.name + ".etag"
-        fMod = file.name + ".mod"
-        fLink = file.name + ".link"
+        fTag = "database/" + file.name + ".etag"
+        fMod = "database/" + file.name + ".mod"
+        fLink = "database/" + file.name + ".link"
         rss = file.read()
         print("======\n" + file.name)
         if not any([Path(fTag).exists(), Path(fMod).exists(), Path(fLink).exists()]):
             d = feedparser.parse(rss.strip())
-            doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+            doc += h3(d.feed.title)
+            doc += p(a(d.entries[0].title, href=d.entries[0].link))
             if hasattr(d, "etag"):
                 print("writing tag...")
                 with open(fTag, "w", encoding="utf-8") as data:
@@ -54,7 +57,8 @@ for channel in sorted(glob.glob("*.rss")):
                         print("entries match, doing nothing")
                     else:
                         print("updating...")
-                        doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+                        doc += h3(d.feed.title)
+                        doc += p(a(d.entries[0].title, href=d.entries[0].link))
                         with open(fTag, "w", encoding="utf-8") as data:
                             data.write(d.etag)
             elif Path(fMod).exists():
@@ -73,7 +77,8 @@ for channel in sorted(glob.glob("*.rss")):
                         print("entries match, doing nothing")
                     else:
                         print("updating...")
-                        doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+                        doc += h3(d.feed.title)
+                        doc += p(a(d.entries[0].title, href=d.entries[0].link))
                         with open(fMod, "w", encoding="utf-8") as data:
                             data.write(d.modified)
             elif Path(fLink).exists():
@@ -85,7 +90,8 @@ for channel in sorted(glob.glob("*.rss")):
                     print("nothing to do")
                 else:
                     print("updating...")
-                    doc += p(d.feed.title, a(d.entries[0].title, href=d.entries[0].link))
+                    doc += h3(d.feed.title)
+                    doc += p(a(d.entries[0].title, href=d.entries[0].link))
                     with open(fLink, "w", encoding="utf-8") as data:
                         data.write(d.entries[0].link)
 # debug output

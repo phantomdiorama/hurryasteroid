@@ -2,6 +2,7 @@ data/
 *.html
 *.txt
 *.rss
+*.css
 *.etag
 *.mod
 *.link
