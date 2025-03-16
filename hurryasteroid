@@ -10,13 +10,13 @@ from dominate.tags import a, p, h1, h3, link
 from dominate.util import raw
 
 # document header
-doc = dominate.document(title="A Bit Of News")
+doc = dominate.document(title="Hurry Asteroid")
 with doc.head:
     link(rel="stylesheet", href="style.css")
     raw('<meta name="viewport" content="width=device-width, initial-scale=1.0" />')
 
 # document body
-doc += h1("A Bit Of News")
+doc += h1("Hurry Asteroid")
 
 for channel in sorted(glob.glob("*.rss")):
     with open(channel, encoding="utf-8") as file:
@@ -98,5 +98,5 @@ for channel in sorted(glob.glob("*.rss")):
 print(doc)
 
 # create file
-with open("abitofnews.html", "w", encoding="utf-8") as outputFile:
+with open("hurryasteroid.html", "w", encoding="utf-8") as outputFile:
     outputFile.write(str(doc))
