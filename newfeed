@@ -1,12 +1,24 @@
 #!/usr/bin/env python3
 # add feed file
 import sys
+from pathlib import Path
 
 if len(sys.argv) < 2:
     print("boo!")
     sys.exit()
 
-k = sys.argv[1] + ".rss"
+# folders set up
+config_path = Path.home() / ".config" / "hurryasteroid"
 
-with open(k, "w", encoding="utf-8") as file:
+if config_path.is_dir():
+    pass
+else:
+    config_path.mkdir()
+    print("config path created")
+
+feed = sys.argv[1] + ".rss"
+
+with open(config_path / feed, "w", encoding="utf-8") as file:
     file.write(sys.argv[2])
+
+print("added feed: " + feed)
