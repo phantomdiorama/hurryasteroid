@@ -3,7 +3,7 @@
 """Hurry Asteroid"""
 
 import logging
-# import glob
+import sys
 from pathlib import Path
 import feedparser
 import dominate
@@ -21,6 +21,16 @@ if config_path.is_dir():
 else:
     config_path.mkdir()
     print("config path created")
+
+# adding feeds
+if len(sys.argv) > 2:
+    print("enough args")
+    if sys.argv[1] == "add":
+        addFile = sys.argv[2] + ".rss"
+        with open(config_path / addFile, "w", encoding="utf-8") as file:
+            file.write(sys.argv[3])
+        print("added feed: " + addFile)
+        sys.exit()
 
 # starting...
 print("Updating feeds. This may take a while.")

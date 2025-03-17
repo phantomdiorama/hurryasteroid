@@ -1,7 +1,10 @@
 # Hurry Asteroid
 
-A mostly minimal RSS/Atom feed reader script that gets *only* the latest article and
-shows it only *once*.
+A RSS reader in a static webpage.
+
+Designed to be minimal and ephemeral.
+
+Items are shown only *once* and *disappear* on the next run.
 
 ## Requirements
 
