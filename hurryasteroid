@@ -2,14 +2,18 @@
 
 """Hurry Asteroid"""
 
-import glob
+import logging
+# import glob
 from pathlib import Path
 import feedparser
 import dominate
 from dominate.tags import a, p, h1, h3, link, img
 from dominate.util import raw
 
-# folders set up
+# set up logging
+logging.basicConfig(level=logging.DEBUG,filename="app.log",encoding="utf-8",filemode="a")
+
+# set up folders
 config_path = Path.home() / ".config" / "hurryasteroid"
 
 if config_path.is_dir():
@@ -17,6 +21,9 @@ if config_path.is_dir():
 else:
     config_path.mkdir()
     print("config path created")
+
+# starting...
+print("Updating feeds. This may take a while.")
 
 # document header
 doc = dominate.document(title="Hurry Asteroid")
@@ -33,17 +40,15 @@ for channel in sorted(config_path.glob("*.rss")):
         modFile = file.name + ".mod"
         linkFile = file.name + ".link"
         fTag = config_path / tagFile
-        print(fTag)
         fMod = config_path / modFile
         fLink = config_path / linkFile
         rss = file.read()
-        print("======\n" + file.name)
+        logging.info(file.name)
         if not any([Path(fTag).exists(), Path(fMod).exists(), Path(fLink).exists()]):
             d = feedparser.parse(rss.strip())
             doc += h3(d.feed.title)
             doc += p(a(d.entries[0].title, href=d.entries[0].link))
             if hasattr(d, "etag"):
-                print("writing tag...")
                 with open(fTag, "w", encoding="utf-8") as data:
                     data.write(d.etag)
             elif hasattr(d, "modified"):
@@ -53,56 +58,55 @@ for channel in sorted(config_path.glob("*.rss")):
             with open(fLink, "w", encoding="utf-8") as data:
                 data.write(d.entries[0].link)
         else:
-            print("has data file")
             if Path(fTag).exists():
-                print("data: etag")
+                logging.info("data: etag")
                 with open(fTag, "r", encoding="utf-8") as data:
                     check = data.read()
                 d = feedparser.parse(rss.strip(), etag=check)
                 if d.status == 304:
-                    print("error 304")
+                    logging.info("error 304")
                 elif d.etag == check:
-                    print("tags match, doing nothing")
+                    logging.info("tags match, doing nothing")
                 else:
                     with open(fLink, "r", encoding="utf-8") as data:
                         check = data.read()
                     if check == d.entries[0].link:
-                        print("entries match, doing nothing")
+                        logging.info("entries match, doing nothing")
                     else:
-                        print("updating...")
+                        logging.info("updating...")
                         doc += h3(d.feed.title)
                         doc += p(a(d.entries[0].title, href=d.entries[0].link))
                         with open(fTag, "w", encoding="utf-8") as data:
                             data.write(d.etag)
             elif Path(fMod).exists():
-                print("data: modified")
+                logging.info("data: modified")
                 with open(fMod, "r", encoding="utf-8") as data:
                     check = data.read()
                 d = feedparser.parse(rss.strip(), modified=check)
                 if d.status == 304:
-                    print("error 304")
+                    logging.info("error 304")
                 elif d.modified == check:
-                    print("tags match, doing nothing")
+                    logging.info("tags match, doing nothing")
                 else:
                     with open(fLink, "r", encoding="utf-8") as data:
                         check = data.read()
                     if check == d.entries[0].link:
-                        print("entries match, doing nothing")
+                        logging.info("entries match, doing nothing")
                     else:
-                        print("updating...")
+                        logging.info("updating...")
                         doc += h3(d.feed.title)
                         doc += p(a(d.entries[0].title, href=d.entries[0].link))
                         with open(fMod, "w", encoding="utf-8") as data:
                             data.write(d.modified)
             elif Path(fLink).exists():
-                print("data: link")
+                logging.info("data: link")
                 with open(fLink, "r", encoding="utf-8") as data:
                     check = data.read()
                 d = feedparser.parse(rss.strip())
                 if d.entries[0].link == check:
-                    print("nothing to do")
+                    logging.info("nothing to do")
                 else:
-                    print("updating...")
+                    logging.info("updating...")
                     doc += h3(d.feed.title)
                     doc += p(a(d.entries[0].title, href=d.entries[0].link))
                     with open(fLink, "w", encoding="utf-8") as data:
