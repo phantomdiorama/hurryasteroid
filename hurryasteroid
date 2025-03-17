@@ -9,14 +9,14 @@ import dominate
 from dominate.tags import a, p, h1, h3, link, img
 from dominate.util import raw
 
-# folder setup
-archive_path = Path("database")
+# folders set up
+config_path = Path.home() / ".config" / "hurryasteroid"
 
-if archive_path.is_dir():
+if config_path.is_dir():
     pass
 else:
-    archive_path.mkdir()
-    print("archive path created")
+    config_path.mkdir()
+    print("config path created")
 
 # document header
 doc = dominate.document(title="Hurry Asteroid")
@@ -27,11 +27,15 @@ with doc.head:
 # document body
 doc += h1("Hurry Asteroid")
 
-for channel in sorted(glob.glob("*.rss")):
+for channel in sorted(config_path.glob("*.rss")):
     with open(channel, encoding="utf-8") as file:
-        fTag = "database/" + file.name + ".etag"
-        fMod = "database/" + file.name + ".mod"
-        fLink = "database/" + file.name + ".link"
+        tagFile = file.name + ".etag"
+        modFile = file.name + ".mod"
+        linkFile = file.name + ".link"
+        fTag = config_path / tagFile
+        print(fTag)
+        fMod = config_path / modFile
+        fLink = config_path / linkFile
         rss = file.read()
         print("======\n" + file.name)
         if not any([Path(fTag).exists(), Path(fMod).exists(), Path(fLink).exists()]):

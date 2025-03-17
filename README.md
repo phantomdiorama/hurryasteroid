@@ -1,4 +1,5 @@
-# abitofnews
+# Hurry Asteroid
+
 A mostly minimal RSS/Atom feed reader script that gets *only* the latest article and
 shows it only *once*.
 
