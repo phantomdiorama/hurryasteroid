@@ -1,11 +1,13 @@
 # Hurry Asteroid
 
-A RSS reader in a static webpage.
+The difference between Hurry Asteroid and other, better feed readers is it shows only
+the newest items and only once. No backlog can build up because items disappear on the
+next run whether they've been read or not.
 
-- Designed to be minimal and ephemeral-- items are shown only **once** and **disappear**
-  on the next run.
-- Everything is flat files. No database.
-- Open in browser. No webserver needed
+Other "features":
+
+- No database. Everything is flat files.
+- No webserver needed. Outputs a html file.
 
 ## Requirements
 
@@ -14,7 +16,7 @@ A RSS reader in a static webpage.
 
 ## Install
 
-Drop hurryasteroid somewhere in your PATH
+Install the above packages, then drop hurryasteroid somewhere in your PATH
 
 ## Usage
 
@@ -30,6 +32,10 @@ build webpage (in current folder):
 hurryasteroid
 ```
 
+**Note:** The output html is unstyled. However you can use your own css by adding style.rss
+to folder with the html file.
+
 ## Thanks
 
-Asteroid image by Good Stuff No Nonsense [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 
+- [Lorem RSS](http://lorem-rss.herokuapp.com/)
+- Asteroid image by Good Stuff No Nonsense [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 

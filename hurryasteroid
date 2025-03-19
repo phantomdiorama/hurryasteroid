@@ -123,7 +123,7 @@ for channel in sorted(config_path.glob("*.rss")):
                         data.write(d.entries[0].link)
 
 # debug output
-print(doc)
+# print(doc)
 
 # create file
 with open("hurryasteroid.html", "w", encoding="utf-8") as outputFile:
