@@ -122,8 +122,6 @@ for channel in sorted(config_path.glob("*.rss")):
                     with open(fLink, "w", encoding="utf-8") as data:
                         data.write(d.entries[0].link)
 
-doc += img("asteroid", src="pic.png")
-
 # debug output
 print(doc)
 
