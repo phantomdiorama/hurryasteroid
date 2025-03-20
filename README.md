@@ -33,7 +33,7 @@ hurryasteroid
 ```
 
 **Note:** The output html is unstyled. However you can use your own css by adding style.rss
-to folder with the html file.
+to folder with the html file. See `/extras` for an example.
 
 ## Thanks
 

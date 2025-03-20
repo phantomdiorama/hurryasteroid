@@ -1,0 +1,12 @@
+body {
+  background: black;
+  color: white;
+  font-family: futura, sans-serif;
+}
+h1 {
+  font-family: boldonse, futura, sans-serif;
+}
+a {
+  color: limegreen;
+  text-decoration: none;
+}

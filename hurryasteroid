@@ -5,9 +5,10 @@
 import logging
 import sys
 from pathlib import Path
+from datetime import datetime
 import feedparser
 import dominate
-from dominate.tags import a, p, h1, h3, link, img
+from dominate.tags import a, p, h1, h3, link
 from dominate.util import raw
 
 # set up logging
@@ -21,6 +22,9 @@ if config_path.is_dir():
 else:
     config_path.mkdir()
     print("config path created")
+
+# get date
+currentDate = datetime.now().strftime('%A %d %B %Y')
 
 # adding feeds
 if len(sys.argv) > 2:
@@ -38,11 +42,13 @@ print("Updating feeds. This may take a while.")
 # document header
 doc = dominate.document(title="Hurry Asteroid")
 with doc.head:
-    link(rel="stylesheet", href="style.css")
+    raw('<meta charset="UTF-8">')
     raw('<meta name="viewport" content="width=device-width, initial-scale=1.0" />')
+    link(rel="stylesheet", href="style.css")
 
 # document body
 doc += h1("Hurry Asteroid")
+doc += p(currentDate)
 
 for channel in sorted(config_path.glob("*.rss")):
     with open(channel, encoding="utf-8") as file:
@@ -54,6 +60,7 @@ for channel in sorted(config_path.glob("*.rss")):
         fLink = config_path / linkFile
         rss = file.read()
         logging.info(file.name)
+        print(file.name)
         if not any([Path(fTag).exists(), Path(fMod).exists(), Path(fLink).exists()]):
             d = feedparser.parse(rss.strip())
             doc += h3(d.feed.title)
